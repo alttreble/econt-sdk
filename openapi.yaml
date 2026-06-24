@@ -1,0 +1,2470 @@
+openapi: 3.0.3
+info:
+  title: EEcont
+  version: '1.0.0'
+  description: |
+    <div style="display:none;background-color: #eee;padding: 15px 15px 4px 15px;margin-bottom: 15px;border-radius: 15px;"><p>На тестовата среда на API интеграцията със системата на Еконт, е качена версия за подготовка на пратки в евро. Единственото изискване е за всяка пратка да се подава валута за НП/ОС, ако има такива услуги.</p><p>От <b>средата на 12.2025 г.</b> същата версия ще бъде качена и в реална среда, като ще функционира по аналогичен начин.</p>
+    <p>От <b>01.01.2026 г</b>., предварително създадени товарителници в лева, ще бъдат автоматично превалутирани в евро и не е необходимо да се правят промени по тях, преди приема им.</p>
+    <hr style="border-top-color: #ccc;margin: 10px 0;border-top-style: dotted;">
+    <p>On the test environment for the API integration with Econt’s system, a version supporting the preparation of shipments in euros has been deployed. The only requirement is that a currency must be provided for COD/declared-value services, if such services are included.</p>
+    <p>Starting from <b>mid-December 2025</b>, the same version will be deployed in the live environment and will function in the same way.</p>
+    <p>From <b>01.01.2026</b>, waybills created in advance in Bulgarian lev will be automatically converted to euros, and no changes will be required before their acceptance.</p>
+    </div>
+    
+    <p>
+    API integration with Econt provides the following options (version 1.0 / 24.04.2018):
+    </p>
+    <ul>
+    	<li><a href="https://ee.econt.com/services/Shipments/#LabelService"><font color="#0000ff"><u>creating and validating label(s)</u></font></a></li>
+    	<li><a href="https://ee.econt.com/services/Shipments/#LabelService-deleteLabels"><font color="#0000ff"><u>deleting label(s)</u></font></a></li>
+    	<li><a href="https://ee.econt.com/services/Shipments/#ShipmentService-requestCourier"><font color="#0000ff"><u>requesting a courier</u></font></a> to collect a shipment from address at a given time range</li>
+    	<li>checking <a href="https://ee.econt.com/services/Shipments/#ShipmentService-getShipmentStatuses"><font color="#0000ff"><u>shipment status</u></font></a>, tracking a shipment</li>
+    	<li>information about Econt's <a href="https://ee.econt.com/services/Nomenclatures/#NomenclaturesService-getOffices"><font color="#0000ff"><u>offices</u></font></a></li>
+    	<li>information about <a href="https://ee.econt.com/services/Nomenclatures/#NomenclaturesService-getCountries"><font color="#0000ff"><u>countries</u></font></a> and <a href="https://ee.econt.com/services/Nomenclatures/#NomenclaturesService-getCities"><font color="#0000ff"><u>cities</u></font></a> served by Econt</li>
+    	<li>information about the <a href="https://ee.econt.com/services/Nomenclatures/#NomenclaturesService-getStreets"><font color="#0000ff"><u>streets</u></font></a> and <a href="https://ee.econt.com/services/Nomenclatures/#NomenclaturesService-getQuarters"><font color="#0000ff"><u>neighborhoods</u></font></a> in the cities served by Econt</li>
+    	<li>information about <a href="https://ee.econt.com/services/Profile/#ProfileService-getClientProfiles"><font color="#0000ff"><u>user</u></font></a> of e-econt (addresses for sending and receiving shipments)</li>
+    </ul>
+    <div style="margin: 25px 0">
+    	<h4><a target="_blank" href="https://ee.econt.com/services/openapi.yaml">OpenAPI Specification</a></h4>
+    	<h4><a target="_blank" href="https://www.postman.com/it-partner-4635083/econt-shipping-apis">Postman Collection</a></h4>
+    </div>
+    
+    HTTP request type - POST!
+    <br/><br/>
+    Authentication using SSL client certificates is currently not supported, but you can use an SSL connection and authorize in the query. The credentials below should be provided as BASIC authentication header in the http request.
+    <br/><br/>                          
+    For the test system (https://demo.econt.com/ee/services/) you can use the following credentials: 
+    <ul>
+    	<li>username: iasp-dev</li>
+    	<li>password: 1Asp-dev</li>
+    </ul>
+    
+    Important! The DEMO endpoints for the services are different than the production ones!
+    <br/><br/>
+    You need to replace the following in the URLs for every endpoint if you wish to set up DEMO implementation first:
+    <br/>ee.econt.com/services" &lt;-&gt; "demo.econt.com/ee/services"
+    <br/><br/>
+    
+    For the production system (https://ee.econt.com/services/) you can use:
+    <ul>
+    	<li>an existing e-econt user's credentials</li>
+    	<li>register a new user <a href="https://ee.econt.com/load_direct.php?target=Register"><font color="#0000ff"><u>here</u></font></a> or by contacting an Econt employee</li>
+    </ul>
+    <br/>
+    <a href="https://ee.econt.com/xml_api_example.php"><font color="#0000ff"><u>Here</u></font></a> you can see how a query is sent to the API and how to convert PHP arrays from/to XML. The example contains only required fields and frequently used services. 
+    <br/>
+    <a href="https://ee.econt.com/doc_templates/GreeceIntegrationAPIGuide.php"><font color="#0000ff"><u>Here</u></font></a> you can see instructions for deliveries to and from Greece via Econt API.
+    <br/>
+    <a href="$inet://https://delivery-demo.econt.com/services/#office-locator"><font color="#0000ff"><u>Here</u></font></a> you can see instructions for implementation of Office Locator.
+    <br/><br/>
+    For questions, you may file service requests by e-mail at <a href="mailto:support_integrations@econt.com"><font color="#0000ff"><u>support_integrations@econt.com</u></font></a><b>. </b>Our Service Desk Agent will help you solve technical problems and provide technical advice.
+servers:
+  - url: 'https://ee.econt.com/services'
+tags:
+  - name: PaymentReport
+  - name: ThreeWayLogistics
+  - name: Profile
+  - name: Shipments
+  - name: Nomenclatures
+security:
+  - basicAuth: []
+paths:
+  /PaymentReport/PaymentReportService.PaymentReport.json:
+      post:
+        tags:
+          - PaymentReport
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentReportRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PaymentReportRow"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /ThreeWayLogistics/ThreeWayLogisticsService.threeWayLogistics.json:
+      post:
+        tags:
+          - ThreeWayLogistics
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreeWayLogisticsRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ThreeWayLogisticsResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Profile/ProfileService.getClientProfiles.json:
+      post:
+        tags:
+          - Profile
+        description: |
+          Basic method for requesting information about client profiles. Requires authorization.
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetClientProfilesRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetClientProfilesResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Profile/ProfileService.createCDAgreement.json:
+      post:
+        tags:
+          - Profile
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCDAgreementRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CreateCDAgreementResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.createLabel.json:
+      post:
+        tags:
+          - Shipments
+        description: |
+          Method for creating label. Supports the following modes - calculate, validate, create
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateLabelRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CreateLabelResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.createLabels.json:
+      post:
+        tags:
+          - Shipments
+        description: |
+          Method for creating multiple labels at once. Supports the following modes - calculate, validate, create
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateLabelsRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CreateLabelsResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.deleteLabels.json:
+      post:
+        tags:
+          - Shipments
+        description: |
+          Method for deleting multiple labels at once.
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteLabelsRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/DeleteLabelsResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.updateLabel.json:
+      post:
+        tags:
+          - Shipments
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateLabelRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UpdateLabelResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.checkPossibleShipmentEditions.json:
+      post:
+        tags:
+          - Shipments
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckPossibleShipmentEditionsRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CheckPossibleShipmentEditionsResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.updateLabels.json:
+      post:
+        tags:
+          - Shipments
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateLabelsRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UpdateLabelsResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.grouping.json:
+      post:
+        tags:
+          - Shipments
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupingRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GroupingResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/LabelService.groupingCancelation.json:
+      post:
+        tags:
+          - Shipments
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupingCancelationRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GroupingCancelationResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/ShipmentService.requestCourier.json:
+      post:
+        tags:
+          - Shipments
+        description: |
+          Method for requesting courier
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestCourierRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/RequestCourierResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/ShipmentService.getShipmentStatuses.json:
+      post:
+        tags:
+          - Shipments
+        description: |
+          Method for requesting information about the statuses of a shipment
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetShipmentStatusesRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetShipmentStatusesResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/ShipmentService.getRequestCourierStatus.json:
+      post:
+        tags:
+          - Shipments
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRequestCourierStatusRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetRequestCourierStatusResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/ShipmentService.getMyAWB.json:
+      post:
+        tags:
+          - Shipments
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetMyAWBRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetMyAWBResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Shipments/ShipmentService.setITUCode.json:
+      post:
+        tags:
+          - Shipments
+        description: |
+          Set ITU code for shipment
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetITUCodeRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/SetITUCodeResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/NomenclaturesService.getCountries.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Basic method for requesting information about the countries where Econt Express operates. Input parameters: none
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCountriesRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetCountriesResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/NomenclaturesService.getCities.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Basic method for requesting information about city names in a country. Input parameters: countryCode
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCitiesRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetCitiesResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/NomenclaturesService.getOffices.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Basic method for requesting information about offices. Input parameters: countryCode and cityID (optional)
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetOfficesRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetOfficesResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/NomenclaturesService.getStreets.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Basic method for requesting information about street names. Input parameters: cityID (optional)
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetStreetsRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetStreetsResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/NomenclaturesService.getQuarters.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Basic method for requesting information about quarter names. Input parameters: cityID (optional)
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetQuartersRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetQuartersResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/AddressService.validateAddress.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Basic method for validation of address. Requires the following input parameters: city name, street name and street number OR quarter and other
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidateAddressRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ValidateAddressResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/AddressService.addressServiceTimes.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Geolocates an address and provides service times for that address.
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressServiceTimesRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/AddressServiceTimesResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+  /Nomenclatures/AddressService.getNearestOffices.json:
+      post:
+        tags:
+          - Nomenclatures
+        description: |
+          Information service for offices near given address
+        requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetNearestOfficesRequest"
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetNearestOfficesResponse"
+          '400':
+            description: Fault
+            content:
+              application/json:
+                schema:
+                  anyOf:
+                    -
+                      $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    PaymentReportRequest:
+      type: object
+      properties:
+        dateTo:
+          type: string
+        dateFrom:
+          type: string
+    PaymentReportRow:
+      type: object
+      properties:
+        num:
+          type: integer
+          format: int64
+        type:
+          type: string
+        payType:
+          type: string
+        payDate:
+          type: string
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+        createdTime:
+          type: string
+    Error:
+      type: object
+      description: |
+        Generic error
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+              type: string
+        innerErrors:
+          type: array
+          items:
+              $ref: "#/components/schemas/Error"
+    ThreeWayLogisticsRequest:
+      type: object
+      properties:
+        requester_name:
+          type: string
+        requester_phone:
+          type: string
+        requester_email:
+          type: string
+        requester_company_name:
+          type: string
+        requester_username:
+          type: string
+        supplier_company_name:
+          type: string
+        supplier_contact_person:
+          type: string
+        supplier_phone:
+          type: string
+        supplier_city:
+          type: string
+        supplier_address:
+          type: string
+        supplier_date_for_visit:
+          type: string
+        supplier_time_for_visit:
+          type: string
+        receiver_name:
+          type: string
+        receiver_company_name:
+          type: string
+        receiver_phone:
+          type: string
+        receiver_email:
+          type: string
+        description_shipment_description:
+          type: string
+        description_shipment_count:
+          type: string
+        description_shipment_weight:
+          type: string
+        description_additional_instructions:
+          type: string
+        description_payment_sum_to_supplier:
+          type: string
+        delivery_details_city:
+          type: string
+        delivery_details_address:
+          type: string
+        delivery_details_office:
+          type: string
+        dc:
+          type: string
+        dccp:
+          type: string
+        email_on_delivery:
+          type: string
+        invoice_before_pay:
+          type: string
+        preview:
+          type: string
+        test:
+          type: string
+        payment_delivery_and_return_by_me:
+          type: string
+        payment_return_by_me:
+          type: string
+        payment_delivery_by_requester:
+          type: string
+        payment_delivery_by_receiver:
+          type: string
+        oc_sum:
+          type: string
+        cd_sum:
+          type: string
+        priority_delivery_time_before:
+          type: string
+        priority_delivery_time_after:
+          type: string
+        priority_delivery_time_in:
+          type: string
+    ThreeWayLogisticsResponse:
+      type: object
+    GetClientProfilesRequest:
+      type: object
+      description: |
+        Requests information about the client profiles (requires authorization) 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/GetClientProfilesRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetClientProfilesResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/GetClientProfilesRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetClientProfilesResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+    GetClientProfilesResponse:
+      type: object
+      description: |
+        Returns detailed information about the client profiles <a href="http://ee.econt.com/doc_templates/srv/GetClientProfilesResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        profiles:
+          type: array
+          items:
+              $ref: "#/components/schemas/ProfilesResponseElement"
+    ProfilesResponseElement:
+      type: object
+      description: |
+        Information about the client's addresses, "cash on delivery" payment options and templates with instructions
+      properties:
+        client:
+          $ref: "#/components/schemas/ClientProfile"
+        addresses:
+          type: array
+          items:
+              $ref: "#/components/schemas/Address"
+        cdPayOptions:
+          type: array
+          items:
+              $ref: "#/components/schemas/CDPayOptions"
+        instructionTemplates:
+          type: array
+          items:
+              $ref: "#/components/schemas/Instruction"
+    ClientProfile:
+      type: object
+      description: |
+        Information about the client profile (corporate or private)
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        nameEn:
+          type: string
+        phones:
+          type: array
+          items:
+              type: string
+        email:
+          type: string
+        skypeAccounts:
+          type: array
+          items:
+              type: string
+        clientNumber:
+          type: string
+        clientNumberEn:
+          type: string
+        juridicalEntity:
+          type: boolean
+        personalIDType:
+          type: string
+        personalIDNumber:
+          type: string
+        companyType:
+          type: string
+        ein:
+          type: string
+        ddsEinPrefix:
+          type: string
+        ddsEin:
+          type: string
+        registrationAddress:
+          type: string
+        molName:
+          type: string
+        molEGN:
+          type: string
+        molIDNum:
+          type: string
+    Address:
+      type: object
+      description: |
+        Address. Required fields for valid address - city, street and street number (or quarter and other). Use respective fields or all joined together in the field &lt;fullAddress&gt;
+      properties:
+        id:
+          type: integer
+          format: int32
+        city:
+          $ref: "#/components/schemas/City"
+        fullAddress:
+          type: string
+        fullAddressEn:
+          type: string
+        quarter:
+          type: string
+        street:
+          type: string
+        num:
+          type: string
+        other:
+          type: string
+        location:
+          $ref: "#/components/schemas/GeoLocation"
+        zip:
+          type: string
+        hezid:
+          type: string
+    City:
+      type: object
+      description: |
+        City served by Econt Express. Required fields for valid city - ID or name + post code (if the City is outside Bulgaria, country is required)
+      properties:
+        id:
+          type: integer
+          format: int32
+        country:
+          $ref: "#/components/schemas/Country"
+        postCode:
+          type: string
+        name:
+          type: string
+        nameEn:
+          type: string
+        regionName:
+          type: string
+        regionNameEn:
+          type: string
+        phoneCode:
+          type: string
+        location:
+          $ref: "#/components/schemas/GeoLocation"
+        expressCityDeliveries:
+          type: boolean
+        monday:
+          type: boolean
+        tuesday:
+          type: boolean
+        wednesday:
+          type: boolean
+        thursday:
+          type: boolean
+        friday:
+          type: boolean
+        saturday:
+          type: boolean
+        sunday:
+          type: boolean
+        serviceDays:
+          type: integer
+          format: int32
+        zoneId:
+          type: integer
+          format: int32
+        zoneName:
+          type: string
+        zoneNameEn:
+          type: string
+        servingOffices:
+          type: array
+          items:
+              $ref: "#/components/schemas/ServingOfficeElement"
+    Country:
+      type: object
+      description: |
+        Country. Required fields for valid country - ID or code (code2 or code3)
+      properties:
+        id:
+          type: integer
+          format: int32
+        code2:
+          type: string
+        code3:
+          type: string
+        name:
+          type: string
+        nameEn:
+          type: string
+        isEU:
+          type: boolean
+    GeoLocation:
+      type: object
+      description: |
+        A geographic location
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        confidence:
+          type: integer
+          format: int32
+    ServingOfficeElement:
+      type: object
+      properties:
+        officeCode:
+          type: string
+        servingType:
+          type: string
+    CDPayOptions:
+      type: object
+      description: |
+        Payment options for "cash on delivery" service
+      properties:
+        num:
+          type: string
+        client:
+          $ref: "#/components/schemas/ClientProfile"
+        moneyTransfer:
+          type: boolean
+        express:
+          type: boolean
+        method:
+          type: string
+        address:
+          $ref: "#/components/schemas/Address"
+        officeCode:
+          type: string
+        IBAN:
+          type: string
+        BIC:
+          type: string
+        bankCurrency:
+          type: string
+        payDays:
+          type: array
+          items:
+              type: integer
+              format: int32
+        payWeekdays:
+          type: array
+          items:
+              $ref: "#/components/schemas/Weekday"
+        additionalInstructions:
+          type: string
+        departamentNum:
+          type: integer
+          format: int32
+    Weekday:
+      type: string
+      enum:
+        - monday
+        - tuesday
+        - wednesday
+        - thursday
+        - friday
+        - saturday
+        - sunday
+    Instruction:
+      type: object
+      description: |
+        Additional instructions for receiving, giving over or returning of shipment
+      properties:
+        id:
+          type: integer
+          format: int32
+        type:
+          $ref: "#/components/schemas/InstructionType"
+        title:
+          type: string
+        description:
+          type: string
+        attachments:
+          type: array
+          items:
+              $ref: "#/components/schemas/HostedFile"
+        voiceDescription:
+          $ref: "#/components/schemas/HostedFile"
+        returnInstructionParams:
+          $ref: "#/components/schemas/ReturnInstructionParams"
+        name:
+          type: string
+        applyToAllParcels:
+          type: boolean
+        applyToReceivers:
+          type: array
+          items:
+              type: string
+    InstructionType:
+      type: string
+      enum:
+        - take
+        - give
+        - return
+        - services
+    HostedFile:
+      type: object
+      description: |
+        A file hosted on Econt's servers
+      properties:
+        id:
+          type: integer
+          format: int32
+        filename:
+          type: string
+        mimeType:
+          type: string
+        URL:
+          type: string
+        content:
+          type: string
+          format: byte
+    ReturnInstructionParams:
+      type: object
+      description: |
+        Parameters for returning shipment instructions
+      properties:
+        returnParcelDestination:
+          type: string
+        returnParcelIsDocument:
+          type: boolean
+        returnParcelIsEmptyPallet:
+          type: boolean
+        emptyPalletEuro:
+          type: integer
+          format: int32
+        emptyPallet80:
+          type: integer
+          format: int32
+        emptyPallet100:
+          type: integer
+          format: int32
+        emptyPallet120:
+          type: integer
+          format: int32
+        daysUntilReturn:
+          type: integer
+          format: int32
+        returnParcelPaymentSide:
+          type: string
+        returnParcelReceiverClient:
+          $ref: "#/components/schemas/ClientProfile"
+        returnParcelReceiverAgent:
+          $ref: "#/components/schemas/ClientProfile"
+        returnParcelReceiverOfficeCode:
+          type: string
+        returnParcelReceiverAddress:
+          $ref: "#/components/schemas/Address"
+        printReturnParcel:
+          type: boolean
+        rejectAction:
+          type: string
+        rejectInstruction:
+          type: string
+        rejectContact:
+          type: string
+        rejectReturnClient:
+          $ref: "#/components/schemas/ClientProfile"
+        rejectReturnAgent:
+          $ref: "#/components/schemas/ClientProfile"
+        rejectReturnOfficeCode:
+          type: string
+        rejectReturnAddress:
+          $ref: "#/components/schemas/Address"
+        rejectOriginalParcelPaySide:
+          type: string
+        rejectReturnParcelPaySide:
+          type: string
+        signatureDocuments:
+          type: boolean
+        signaturePenColor:
+          type: string
+        signatureCount:
+          type: integer
+          format: int32
+        signaturePageNumbers:
+          type: string
+        signatureOtherInstructions:
+          type: string
+        executeIfRejectedWithoutReview:
+          type: boolean
+        useReturnAddressForInstruction:
+          type: boolean
+        executeIfNotTaken:
+          type: integer
+          format: int32
+    CreateCDAgreementRequest:
+      type: object
+      description: |
+        Creates a CD agreement for payment options (requires authorization) 
+        (see SOAP example <a href="$inet://http://ee.econt.com/doc_templates/srv/CreateCDAgreementRequest.xml"><font color="#0000ff"><u>Request</u></font></a>)
+        (see JSON example <a href="$inet://http://ee.econt.com/doc_templates/srv/CreateCDAgreementRequest.json"><font color="#0000ff"><u>Request</u></font></a>)
+      properties:
+        cdPayOptions:
+          $ref: "#/components/schemas/CDPayOptions"
+    CreateCDAgreementResponse:
+      type: object
+      properties:
+        cdPayOptions:
+          $ref: "#/components/schemas/CDPayOptions"
+    CreateLabelRequest:
+      type: object
+      description: |
+        Request for creating a label
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/CreateLabelRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/CreateLabelResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/CreateLabelRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/CreateLabelResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        label:
+          $ref: "#/components/schemas/ShippingLabel"
+        requestCourierTimeFrom:
+          type: string
+          format: time
+        requestCourierTimeTo:
+          type: string
+          format: time
+        mode:
+          type: string
+    ShippingLabel:
+      type: object
+      properties:
+        shipmentNumber:
+          type: string
+        previousShipmentNumber:
+          type: string
+        previousShipmentReceiverPhone:
+          type: string
+        senderClient:
+          $ref: "#/components/schemas/ClientProfile"
+        senderAgent:
+          $ref: "#/components/schemas/ClientProfile"
+        senderAddress:
+          $ref: "#/components/schemas/Address"
+        senderOfficeCode:
+          type: string
+        emailOnDelivery:
+          type: string
+        smsOnDelivery:
+          type: string
+        receiverClient:
+          $ref: "#/components/schemas/ClientProfile"
+        receiverAgent:
+          $ref: "#/components/schemas/ClientProfile"
+        receiverAddress:
+          $ref: "#/components/schemas/Address"
+        receiverOfficeCode:
+          type: string
+        receiverProviderID:
+          type: integer
+          format: int32
+        receiverBIC:
+          type: string
+        receiverIBAN:
+          type: string
+        envelopeNumbers:
+          type: array
+          items:
+              type: string
+        packCount:
+          type: integer
+          format: int32
+        packs:
+          type: array
+          items:
+              $ref: "#/components/schemas/PackElement"
+        shipmentType:
+          $ref: "#/components/schemas/ShipmentType"
+        weight:
+          type: number
+          format: double
+        sizeUnder60cm:
+          type: boolean
+        shipmentDimensionsL:
+          type: number
+          format: double
+        shipmentDimensionsW:
+          type: number
+          format: double
+        shipmentDimensionsH:
+          type: number
+          format: double
+        shipmentDescription:
+          type: string
+        orderNumber:
+          type: string
+        sendDate:
+          type: string
+          format: date
+        holidayDeliveryDay:
+          type: string
+        keepUpright:
+          type: boolean
+        services:
+          $ref: "#/components/schemas/ShippingLabelServices"
+        instructions:
+          type: array
+          items:
+              $ref: "#/components/schemas/Instruction"
+        payAfterAccept:
+          type: boolean
+        payAfterTest:
+          type: boolean
+        packingListType:
+          type: string
+        packingList:
+          type: array
+          items:
+              $ref: "#/components/schemas/PackingListElement"
+        partialDelivery:
+          type: boolean
+        paymentSenderMethod:
+          type: string
+        paymentReceiverMethod:
+          type: string
+        paymentReceiverAmount:
+          type: number
+          format: double
+        paymentReceiverAmountIsPercent:
+          type: boolean
+        paymentOtherClientNumber:
+          type: string
+        paymentOtherAmount:
+          type: number
+          format: double
+        paymentOtherAmountIsPercent:
+          type: boolean
+        mediator:
+          type: string
+        paymentToken:
+          type: string
+        customsList:
+          type: array
+          items:
+              $ref: "#/components/schemas/CustomsListElement"
+        customsInvoice:
+          type: string
+        cargoVehicleOptions:
+          $ref: "#/components/schemas/CargoVehicleOptions"
+    PackElement:
+      type: object
+      description: |
+        Pack
+      properties:
+        width:
+          type: number
+          format: float
+        height:
+          type: number
+          format: float
+        length:
+          type: number
+          format: float
+        weight:
+          type: number
+          format: float
+    ShipmentType:
+      type: string
+      enum:
+        - document
+        - pack
+        - pallet
+        - cargo
+        - documentpallet
+        - big_letter
+        - small_letter
+        - money_transfer
+        - pp
+    ShippingLabelServices:
+      type: object
+      properties:
+        priorityTimeFrom:
+          type: string
+          format: time
+        priorityTimeTo:
+          type: string
+          format: time
+        deliveryReceipt:
+          type: boolean
+        digitalReceipt:
+          type: boolean
+        goodsReceipt:
+          type: boolean
+        twoWayShipment:
+          type: boolean
+        deliveryToFloor:
+          type: boolean
+        pack5:
+          type: integer
+          format: int32
+        pack6:
+          type: integer
+          format: int32
+        pack8:
+          type: integer
+          format: int32
+        pack9:
+          type: integer
+          format: int32
+        pack10:
+          type: integer
+          format: int32
+        pack12:
+          type: integer
+          format: int32
+        refrigeratedPack:
+          type: integer
+          format: int32
+        declaredValueAmount:
+          type: number
+          format: double
+        declaredValueCurrency:
+          type: string
+        moneyTransferAmount:
+          type: number
+          format: double
+        expressMoneyTransfer:
+          type: boolean
+        cdAmount:
+          type: number
+          format: double
+        cdType:
+          type: string
+        cdCurrency:
+          type: string
+        cdPayOptionsTemplate:
+          type: string
+        cdPayOptions:
+          $ref: "#/components/schemas/CDPayOptions"
+        invoiceBeforePayCD:
+          type: boolean
+        smsNotification:
+          type: boolean
+        invoiceNum:
+          type: string
+        moneyTransferCurrency:
+          type: string
+    PackingListElement:
+      type: object
+      description: |
+        Packing list
+      properties:
+        inventoryNum:
+          type: string
+        description:
+          type: string
+        weight:
+          type: number
+          format: double
+        count:
+          type: integer
+          format: int32
+        price:
+          type: number
+          format: double
+        file:
+          $ref: "#/components/schemas/HostedFile"
+        alternativeDepartment:
+          type: string
+    CustomsListElement:
+      type: object
+      description: |
+        Customs data TARIC codes
+      properties:
+        cn:
+          type: string
+        description:
+          type: string
+        sum:
+          type: number
+          format: double
+        currency:
+          type: string
+    CargoVehicleOptions:
+      type: object
+      description: |
+        Vehicle access types for cargo shipments
+      properties:
+        senderAddressTruckAccess:
+          type: boolean
+        receiverAddressTruckAccess:
+          type: boolean
+        senderAddressLiftingVehicleRequired:
+          type: boolean
+        receiverAddressLiftingVehicleRequired:
+          type: boolean
+        senderAddressTailLiftTruckRequired:
+          type: boolean
+        receiverAddressTailLiftTruckRequired:
+          type: boolean
+    CreateLabelResponse:
+      type: object
+      description: |
+        Returns information about the created label <a href="http://ee.econt.com/doc_templates/srv/CreateLabelResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        label:
+          $ref: "#/components/schemas/ShipmentStatus"
+        blockingPaymentURL:
+          type: string
+        courierRequestID:
+          type: integer
+          format: int32
+        payAfterAcceptIgnored:
+          type: string
+        delayedDeliveryWarning:
+          type: string
+        delayedRequestWarning:
+          type: string
+    ShipmentStatus:
+      type: object
+      description: |
+        Status of the shipment
+      properties:
+        shipmentNumber:
+          type: string
+        storageOfficeName:
+          type: string
+        storagePersonName:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+        sendTime:
+          type: string
+          format: date-time
+        deliveryTime:
+          type: string
+          format: date-time
+        shipmentType:
+          $ref: "#/components/schemas/ShipmentType"
+        packCount:
+          type: integer
+          format: int32
+        shipmentDescription:
+          type: string
+        weight:
+          type: number
+          format: double
+        senderDeliveryType:
+          type: string
+        senderClient:
+          $ref: "#/components/schemas/ClientProfile"
+        senderAgent:
+          $ref: "#/components/schemas/ClientProfile"
+        senderOfficeCode:
+          type: string
+        senderAddress:
+          $ref: "#/components/schemas/Address"
+        receiverDeliveryType:
+          type: string
+        receiverClient:
+          $ref: "#/components/schemas/ClientProfile"
+        receiverAgent:
+          $ref: "#/components/schemas/ClientProfile"
+        receiverOfficeCode:
+          type: string
+        receiverAddress:
+          $ref: "#/components/schemas/Address"
+        hubCode:
+          type: string
+        hubName:
+          type: string
+        hubNameEN:
+          type: string
+        cdCollectedAmount:
+          type: number
+          format: double
+        cdCollectedCurrency:
+          type: string
+        cdCollectedTime:
+          type: string
+          format: date-time
+        cdPaidAmount:
+          type: number
+          format: double
+        cdPaidCurrency:
+          type: string
+        cdPaidTime:
+          type: string
+          format: date-time
+        totalPrice:
+          type: number
+          format: double
+        currency:
+          type: string
+        discountPercent:
+          type: number
+          format: double
+        discountAmount:
+          type: number
+          format: double
+        discountDescription:
+          type: string
+        senderDueAmount:
+          type: number
+          format: double
+        receiverDueAmount:
+          type: number
+          format: double
+        otherDueAmount:
+          type: number
+          format: double
+        deliveryAttemptCount:
+          type: integer
+          format: int32
+        previousShipmentNumber:
+          type: string
+        services:
+          type: array
+          items:
+              $ref: "#/components/schemas/ShipmentStatusService"
+        lastProcessedInstruction:
+          type: string
+        nextShipments:
+          type: array
+          items:
+              $ref: "#/components/schemas/NextShipmentElement"
+        trackingEvents:
+          type: array
+          items:
+              $ref: "#/components/schemas/ShipmentTrackingEvent"
+        pdfURL:
+          type: string
+        expectedDeliveryDate:
+          type: string
+          format: date
+        returnShipmentURL:
+          type: string
+        rejectOriginalParcelPaySide:
+          type: string
+        rejectReturnParcelPaySide:
+          type: string
+        shipmentEdition:
+          $ref: "#/components/schemas/ShipmentEditionResponseElement"
+        previousShipment:
+          $ref: "#/components/schemas/PreviousShipment"
+        warnings:
+          type: string
+        shortDeliveryStatus:
+          type: string
+        shortDeliveryStatusEn:
+          type: string
+        routingCode:
+          type: string
+    ShipmentStatusService:
+      type: object
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+        count:
+          type: number
+          format: double
+        paymentSide:
+          type: string
+        price:
+          type: number
+          format: double
+        currency:
+          type: string
+    NextShipmentElement:
+      type: object
+      description: |
+        Shipment created from previous
+      properties:
+        shipmentNumber:
+          type: string
+        reason:
+          type: string
+        pdfURL:
+          type: string
+    ShipmentTrackingEvent:
+      type: object
+      properties:
+        isReceipt:
+          type: boolean
+        destinationType:
+          type: string
+        destinationDetails:
+          type: string
+        destinationDetailsEn:
+          type: string
+        officeName:
+          type: string
+        officeNameEn:
+          type: string
+        cityName:
+          type: string
+        cityNameEn:
+          type: string
+        countryCode:
+          type: string
+        officeCode:
+          type: string
+        time:
+          type: string
+          format: date-time
+    ShipmentEditionResponseElement:
+      type: object
+      properties:
+        shipmentNum:
+          type: integer
+          format: int32
+        editionNum:
+          type: integer
+          format: int32
+        editionType:
+          type: string
+        editionError:
+          type: string
+        price:
+          type: string
+        currency:
+          type: string
+    PreviousShipment:
+      type: object
+      description: |
+        Information for the shipment from which the current one was generated (if there is such)
+      properties:
+        shipmentNumber:
+          type: integer
+          format: int32
+        reason:
+          type: string
+        pdfURL:
+          type: string
+    CreateLabelsRequest:
+      type: object
+      description: |
+        Request for creating multiple labels 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/CreateLabelsRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/CreateLabelsResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/CreateLabelsRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/CreateLabelsResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        labels:
+          type: array
+          items:
+              $ref: "#/components/schemas/ShippingLabel"
+        runAsyncAndEmailResultTo:
+          type: string
+        mode:
+          type: string
+    CreateLabelsResponse:
+      type: object
+      description: |
+        Returns information about multiple labels <a href="http://ee.econt.com/doc_templates/srv/CreateLabelsResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        results:
+          type: array
+          items:
+              $ref: "#/components/schemas/CreateLabelResultElement"
+    CreateLabelResultElement:
+      type: object
+      description: |
+        Result from creating label
+      properties:
+        label:
+          $ref: "#/components/schemas/ShipmentStatus"
+        error:
+          $ref: "#/components/schemas/Error"
+        payAfterAcceptIgnored:
+          type: string
+        delayedDeliveryWarning:
+          type: string
+        delayedRequestWarning:
+          type: string
+    DeleteLabelsRequest:
+      type: object
+      description: |
+        Request for deleting labels 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/DeleteLabelsRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/DeleteLabelsResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/DeleteLabelsRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/DeleteLabelsResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        shipmentNumbers:
+          type: array
+          items:
+              type: string
+    DeleteLabelsResponse:
+      type: object
+      description: |
+        Returns information about the d <a href="http://ee.econt.com/doc_templates/srv/DeleteLabelsResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        results:
+          type: array
+          items:
+              $ref: "#/components/schemas/DeleteLabelsResultElement"
+    DeleteLabelsResultElement:
+      type: object
+      description: |
+        Result from deleting labels
+      properties:
+        shipmentNum:
+          type: string
+        error:
+          $ref: "#/components/schemas/Error"
+    UpdateLabelRequest:
+      type: object
+      description: |
+        Request for updating a label
+      properties:
+        label:
+          $ref: "#/components/schemas/ShippingLabel"
+        requestCourierTimeFrom:
+          type: string
+          format: time
+        requestCourierTimeTo:
+          type: string
+          format: time
+        destroy:
+          type: boolean
+        paymentAdditionPrice:
+          $ref: "#/components/schemas/PaymentAdditionPrice"
+        paymentInstruction:
+          $ref: "#/components/schemas/PaymentInstruction"
+    PaymentAdditionPrice:
+      type: object
+      description: |
+        Additional price payment information for ShipmentEditions
+      properties:
+        side:
+          type: string
+        shareAmount:
+          type: number
+          format: double
+        method:
+          type: string
+        otherClientNumber:
+          type: string
+    PaymentInstruction:
+      type: object
+      description: |
+        Additional fee (IC) for some ShipmentEdition types. Payable by sender.
+      properties:
+        method:
+          type: string
+    UpdateLabelResponse:
+      type: object
+      description: |
+        Returns information about the updated label
+      properties:
+        label:
+          $ref: "#/components/schemas/ShipmentStatus"
+    CheckPossibleShipmentEditionsRequest:
+      type: object
+      description: |
+        Returns possible ShipmentEdition types for requested Shipment numbers
+        (see SOAP example <a href="https://ee.econt.com/doc_templates/srv/CheckPossibleShipmentEditionsRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="https://ee.econt.com/doc_templates/srv/CheckPossibleShipmentEditionsResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="https://ee.econt.com/doc_templates/srv/checkPossibleShipmentEditionsRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="https://ee.econt.com/doc_templates/srv/checkPossibleShipmentEditionsResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        shipmentNums:
+          type: array
+          items:
+              type: integer
+              format: int32
+    CheckPossibleShipmentEditionsResponse:
+      type: object
+      properties:
+        possibleShipmentEditions:
+          type: array
+          items:
+              $ref: "#/components/schemas/CheckPossibleShipmentEditionsResultElement"
+    CheckPossibleShipmentEditionsResultElement:
+      type: object
+      properties:
+        possibleShipmentEditions:
+          type: array
+          items:
+              type: string
+        shipmentNum:
+          type: integer
+          format: int32
+    UpdateLabelsRequest:
+      type: object
+      description: |
+        Request for updating multiple labels
+      properties:
+        labels:
+          type: array
+          items:
+              $ref: "#/components/schemas/UpdateLabelRequest"
+    UpdateLabelsResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+              $ref: "#/components/schemas/UpdateLabelsResultElement"
+    UpdateLabelsResultElement:
+      type: object
+      properties:
+        error:
+          $ref: "#/components/schemas/Error"
+        labels:
+          $ref: "#/components/schemas/UpdateLabelResponse"
+    GroupingRequest:
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+              type: integer
+              format: int32
+    GroupingResponse:
+      type: object
+      properties:
+        label:
+          $ref: "#/components/schemas/ShipmentStatus"
+    GroupingCancelationRequest:
+      type: object
+      properties:
+        groupLabel:
+          type: integer
+          format: int32
+    GroupingCancelationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+    RequestCourierRequest:
+      type: object
+      description: |
+        Creates courier request 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/RequestCourierRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/RequestCourierResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/RequestCourierRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/RequestCourierResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        requestTimeFrom:
+          type: string
+          format: date-time
+        requestTimeTo:
+          type: string
+          format: date-time
+        shipmentType:
+          $ref: "#/components/schemas/ShipmentType"
+        shipmentPackCount:
+          type: integer
+          format: int32
+        shipmentWeight:
+          type: number
+          format: double
+        senderClient:
+          $ref: "#/components/schemas/ClientProfile"
+        senderAgent:
+          $ref: "#/components/schemas/ClientProfile"
+        senderAddress:
+          $ref: "#/components/schemas/Address"
+        attachShipments:
+          type: array
+          items:
+              type: string
+        pack12:
+          type: integer
+          format: int32
+        cargoVehicleOptions:
+          $ref: "#/components/schemas/CargoVehicleOptions"
+    RequestCourierResponse:
+      type: object
+      description: |
+        Returns courier request ID <a href="http://ee.econt.com/doc_templates/srv/RequestCourierResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        courierRequestID:
+          type: string
+        warnings:
+          type: string
+        delayedRequestWarning:
+          type: string
+    GetShipmentStatusesRequest:
+      type: object
+      description: |
+        Requests statuses of shipments 
+        (see example SOAP <a href="http://ee.econt.com/doc_templates/srv/GetShipmentStatusesRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetShipmentStatusesResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see example JSON <a href="http://ee.econt.com/doc_templates/srv/GetShipmentStatusesRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetShipmentStatusesResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        shipmentNumbers:
+          type: array
+          items:
+              type: string
+    GetShipmentStatusesResponse:
+      type: object
+      description: |
+        Shipment statuses information <a href="http://ee.econt.com/doc_templates/srv/GetShipmentStatusesResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        shipmentStatuses:
+          type: array
+          items:
+              $ref: "#/components/schemas/ShipmentStatusResultElement"
+    ShipmentStatusResultElement:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/ShipmentStatus"
+        error:
+          $ref: "#/components/schemas/Error"
+    GetRequestCourierStatusRequest:
+      type: object
+      description: |
+        Requests statuses of courier requests
+        (see example SOAP <a href="http://ee.econt.com/doc_templates/srv/GetRequestCourierStatusRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetRequestCourierStatusResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see example JSON <a href="http://ee.econt.com/doc_templates/srv/GetRequestCourierStatusRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetRequestCourierStatusResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        requestCourierIds:
+          type: array
+          items:
+              type: string
+    GetRequestCourierStatusResponse:
+      type: object
+      properties:
+        requestCourierStatus:
+          type: array
+          items:
+              $ref: "#/components/schemas/RequestCourierStatusResultElement"
+    RequestCourierStatusResultElement:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/RequestCourierStatus"
+        error:
+          $ref: "#/components/schemas/Error"
+    RequestCourierStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        status:
+          $ref: "#/components/schemas/RequestCourierStatusType"
+        note:
+          type: string
+        reject_reason:
+          type: string
+    RequestCourierStatusType:
+      type: string
+      enum:
+        - unprocess
+        - process
+        - taken
+        - reject
+        - reject_client
+    GetMyAWBRequest:
+      type: object
+      properties:
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+        page:
+          type: integer
+          format: int32
+        side:
+          type: string
+    GetMyAWBResponse:
+      type: object
+      properties:
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+        page:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        results:
+          type: array
+          items:
+              $ref: "#/components/schemas/GetMyAWBResultElement"
+    GetMyAWBResultElement:
+      type: object
+      properties:
+        shipmentNumber:
+          type: string
+        senderName:
+          type: string
+        status:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        acceptedDate:
+          type: string
+          format: date-time
+        cdAmount:
+          type: number
+          format: double
+        courierServiceAmount:
+          type: number
+          format: double
+        courierServiceMasterPayer:
+          type: string
+        receiverPhone:
+          type: string
+        cdCurrency:
+          type: string
+        courierServiceCurrency:
+          type: string
+    SetITUCodeRequest:
+      type: object
+      properties:
+        awbBarcode:
+          type: string
+        truckRegNum:
+          type: string
+        ITU_code:
+          type: string
+    SetITUCodeResponse:
+      type: object
+    GetCountriesRequest:
+      type: object
+      description: |
+        All countries where Econt Express operates 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/GetCountriesRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetCountriesResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/GetCountriesRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetCountriesResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+    GetCountriesResponse:
+      type: object
+      description: |
+        Return all countries where Econt Express operates <a href="http://ee.econt.com/doc_templates/srv/GetCountriesResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        countries:
+          type: array
+          items:
+              $ref: "#/components/schemas/Country"
+    GetCitiesRequest:
+      type: object
+      description: |
+        Method for requesting the cities in a country 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/GetCitiesRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetCitiesResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example  <a href="http://ee.econt.com/doc_templates/srv/GetCitiesRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetCitiesResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        countryCode:
+          type: string
+    GetCitiesResponse:
+      type: object
+      description: |
+        Returns all cities in a country <a href="http://ee.econt.com/doc_templates/srv/GetCitiesResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        cities:
+          type: array
+          items:
+              $ref: "#/components/schemas/City"
+    GetOfficesRequest:
+      type: object
+      description: |
+        All offices of Econt Express in a country 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/GetOfficesRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetOfficesResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/GetOfficesRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetOfficesResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        countryCode:
+          type: string
+        cityID:
+          type: integer
+          format: int32
+        showCargoReceptions:
+          type: boolean
+        showLC:
+          type: boolean
+        servingReceptions:
+          type: boolean
+    GetOfficesResponse:
+      type: object
+      description: |
+        Returns all Econt offices in a country and city (optional) <a href="http://ee.econt.com/doc_templates/srv/GetOfficesResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        offices:
+          type: array
+          items:
+              $ref: "#/components/schemas/Office"
+    Office:
+      type: object
+      description: |
+        Office of Econt Express. Required fields for identifying an office - code or ID
+      properties:
+        id:
+          type: integer
+          format: int32
+        code:
+          type: string
+        isMPS:
+          type: boolean
+        isAPS:
+          type: boolean
+        name:
+          type: string
+        nameEn:
+          type: string
+        phones:
+          type: array
+          items:
+              type: string
+        emails:
+          type: array
+          items:
+              type: string
+        address:
+          $ref: "#/components/schemas/Address"
+        info:
+          type: string
+        currency:
+          type: string
+        language:
+          type: string
+        normalBusinessHoursFrom:
+          type: string
+          format: time
+        normalBusinessHoursTo:
+          type: string
+          format: time
+        halfDayBusinessHoursFrom:
+          type: string
+          format: time
+        halfDayBusinessHoursTo:
+          type: string
+          format: time
+        shipmentTypes:
+          type: array
+          items:
+              $ref: "#/components/schemas/ShipmentType"
+        partnerCode:
+          type: string
+        hubCode:
+          type: string
+        hubName:
+          type: string
+        hubNameEn:
+          type: string
+        isDrive:
+          type: boolean
+    GetStreetsRequest:
+      type: object
+      description: |
+        Requests all streets in a city 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/GetStreetsRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetStreetsResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/GetStreetsRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetStreetsResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        cityID:
+          type: integer
+          format: int32
+    GetStreetsResponse:
+      type: object
+      description: |
+        Returns all streets in a city (optional) <a href="http://ee.econt.com/doc_templates/srv/GetStreetsResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        streets:
+          type: array
+          items:
+              $ref: "#/components/schemas/Street"
+    Street:
+      type: object
+      description: |
+        Street in the city
+      properties:
+        id:
+          type: integer
+          format: int32
+        cityID:
+          type: integer
+          format: int32
+        name:
+          type: string
+        nameEn:
+          type: string
+    GetQuartersRequest:
+      type: object
+      description: |
+        Request all quarters in a city 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/GetQuartersRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetQuartersResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/GetQuartersRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/GetQuartersResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        cityID:
+          type: integer
+          format: int32
+    GetQuartersResponse:
+      type: object
+      description: |
+        All quarters in a city <a href="http://ee.econt.com/doc_templates/srv/GetQuartersResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        quarters:
+          type: array
+          items:
+              $ref: "#/components/schemas/Quarter"
+    Quarter:
+      type: object
+      description: |
+        Quarter of the city
+      properties:
+        id:
+          type: integer
+          format: int32
+        cityID:
+          type: integer
+          format: int32
+        name:
+          type: string
+        nameEn:
+          type: string
+    ValidateAddressRequest:
+      type: object
+      description: |
+        Validates address based on input parameters 
+        (see SOAP example <a href="http://ee.econt.com/doc_templates/srv/ValidateAddressRequest.xml"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/ValidateAddressResponse.xml"><font color="#0000ff"><u>Response</u></font></a>)
+        (see JSON example <a href="http://ee.econt.com/doc_templates/srv/ValidateAddressRequest.json"><font color="#0000ff"><u>Request</u></font></a>, <a href="http://ee.econt.com/doc_templates/srv/ValidateAddressResponse.json"><font color="#0000ff"><u>Response</u></font></a>)
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+    ValidateAddressResponse:
+      type: object
+      description: |
+        Returns validation status <a href="http://ee.econt.com/doc_templates/srv/ValidateAddressResponse.xml"><font color="#0000ff"><u>(see example)</u></font></a>
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+        validationStatus:
+          type: string
+        serviceInfo:
+          $ref: "#/components/schemas/AddressServiceInfo"
+    AddressServiceInfo:
+      type: object
+      properties:
+        allowedPacksCourierRequest:
+          type: boolean
+        deliveryPacksExtraDelayDays:
+          type: integer
+          format: int32
+        allowedCargoCourierRequest:
+          type: boolean
+        deliveryCargoExtraDelayDays:
+          type: integer
+          format: int32
+        allowedPalletCourierRequest:
+          type: boolean
+        deliveryPalletExtraDelayDays:
+          type: integer
+          format: int32
+    AddressServiceTimesRequest:
+      type: object
+      properties:
+        city:
+          type: integer
+          format: int32
+        address:
+          type: string
+        date:
+          type: string
+          format: date
+        shipmentType:
+          $ref: "#/components/schemas/ShipmentType"
+    AddressServiceTimesResponse:
+      type: object
+      description: |
+        Information about times for servicing a specific address.
+      properties:
+        serviceOffice:
+          $ref: "#/components/schemas/Office"
+        serviceOfficeLatitude:
+          type: number
+          format: double
+        serviceOfficeLongitude:
+          type: number
+          format: double
+        serviceOfficeClientsWorkTimes:
+          type: array
+          items:
+              $ref: "#/components/schemas/WorkingTime"
+        serviceOfficeCourierWorkTimes:
+          type: array
+          items:
+              $ref: "#/components/schemas/WorkingTime"
+        serviceOfficeTime:
+          $ref: "#/components/schemas/WorkingDateTime"
+        serviceOfficeNext30daysWorkTime:
+          type: array
+          items:
+              $ref: "#/components/schemas/WorkingDateTime"
+    WorkingTime:
+      type: object
+      description: |
+        Working hours span
+      properties:
+        start:
+          type: string
+        end:
+          type: string
+    WorkingDateTime:
+      type: object
+      description: |
+        Working date and hours span
+      properties:
+        dayType:
+          $ref: "#/components/schemas/dayType"
+        day:
+          type: string
+        start:
+          type: string
+        end:
+          type: string
+    dayType:
+      type: string
+      enum:
+        - workday
+        - halfday
+        - holiday
+    GetNearestOfficesRequest:
+      type: object
+      description: |
+        Information service for offices near given address
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+        shipmentType:
+          $ref: "#/components/schemas/ShipmentType"
+    GetNearestOfficesResponse:
+      type: object
+      properties:
+        offices:
+          type: array
+          items:
+              $ref: "#/components/schemas/Office"

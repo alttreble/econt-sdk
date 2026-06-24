@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc",
+    "schema:release": "node gen/release.mjs",
+    "schema:check": "node gen/release.mjs --check"
   },
   "devDependencies": {
     "@semantic-release/npm": "^9.0.0",
@@ -27,7 +29,7 @@
   },
   "release": {
     "branches": [
-      "trunk"
+      "main"
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Econt Web API — Reference</title>
+    <link rel="icon" href="data:," />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!-- Scalar API Reference (standalone CDN bundle) -->
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script>
+      Scalar.createApiReference('#app', {
+        // The OpenAPI document is served next to this page (see deploy workflow).
+        url: './openapi.yaml',
+        theme: 'default',
+      })
+    </script>
+  </body>
+</html>

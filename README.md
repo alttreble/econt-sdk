@@ -12,6 +12,39 @@ A Econt API client for JavaScript. Supports TypeScript.
 | API_ECONT_USERNAME | The authentication username (Required only when test mode is **false**) |
 | API_ECONT_PASSWORD | The authentication password (Required only when test mode is **false**) |
 
+## OpenAPI schema & docs
+
+Econt publishes a ready-made OpenAPI spec at
+[`ee.econt.com/services/openapi.yaml`](https://ee.econt.com/services/openapi.yaml), but it has no
+version numbers and no changelog feed. This repo archives a dated copy each time that spec changes
+and publishes an interactive reference site from it.
+
+| Artifact | Description |
+| --- | --- |
+| `openapi.yaml` | The latest Econt OpenAPI 3.0 schema. |
+| `versions/<YYYY-MM-DD>.yaml` | An archived schema for each day the spec changed. |
+| `versions/index.json` | Manifest of all known versions, with `latest` and snapshot timestamps. |
+| Scalar reference site | Interactive API docs deployed to GitHub Pages (see [`docs/index.html`](docs/index.html)). |
+
+The schema is keyed by the **date it changed**: [`gen/release.mjs`](gen/release.mjs) fetches the live
+spec, and only when its bytes differ from the committed `openapi.yaml` does it write a new
+`versions/<date>.yaml`, refresh `openapi.yaml`, and update the manifest. Upstream bytes are preserved
+verbatim, so re-running against an unchanged spec produces no diff.
+
+```bash
+# Fetch the live schema and snapshot it if it changed
+yarn schema:release
+
+# Snapshot from a local file instead (deterministic)
+node gen/release.mjs --offline path/to/openapi.yaml
+```
+
+A weekly [`check-schema`](.github/workflows/check-schema.yml) workflow runs the same fetch and opens a
+PR when Econt's spec changes. The reference site is redeployed to GitHub Pages on every push to
+`main` that touches `openapi.yaml` or the docs shell (see
+[`.github/workflows/deploy-docs.yml`](.github/workflows/deploy-docs.yml)). Enable it once under repo
+**Settings → Pages → Source: "GitHub Actions"**.
+
 ## Progress
 
 - [Nomenclatures](http://ee.econt.com/services/Nomenclatures/)

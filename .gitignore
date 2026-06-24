@@ -104,3 +104,6 @@ dist
 .tern-port
 
 .idea
+
+# GitHub Pages build output
+_site/
