@@ -1,40 +1,21 @@
 {
-  "name": "econt-js",
-  "version": "0.0.1",
-  "description": "JavaScript client library for Econt",
-  "main": "dist/index.js",
+  "name": "econt-sdk",
+  "type": "module",
+  "private": true,
+  "description": "Versioned OpenAPI schema for the Econt API, with an interactive reference site.",
   "repository": "git@github.com:alttreble/econt-js.git",
   "author": "tedraykov <tedraykov@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
-    "test": "jest",
-    "prepublishOnly": "tsc",
-    "schema:release": "node gen/release.mjs",
-    "schema:check": "node gen/release.mjs --check"
+    "generate": "bun ./gen/release.ts",
+    "generate:check": "bun ./gen/release.ts --check",
+    "docs:build": "rm -rf _site && mkdir -p _site && cp docs/index.html _site/index.html && cp openapi.yaml _site/openapi.yaml",
+    "docs:preview": "bun run docs:build && bunx serve _site"
   },
   "devDependencies": {
-    "@semantic-release/npm": "^9.0.0",
-    "@types/jest": "^27.1.1",
-    "@types/node": "^17.0.21",
-    "@types/node-fetch": "^2.6.1",
-    "jest": "^27.1.1",
-    "semantic-release": "^19.0.2",
-    "ts-jest": "^27.1.1",
-    "typescript": "^4.5.5"
+    "@types/bun": "latest"
   },
-  "dependencies": {
-    "cross-fetch": "^3.1.5",
-    "node-fetch": "^2.6.7"
-  },
-  "release": {
-    "branches": [
-      "main"
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/npm"
-    ]
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }
